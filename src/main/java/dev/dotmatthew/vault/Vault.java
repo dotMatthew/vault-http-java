@@ -29,6 +29,13 @@ public class Vault {
     private final String vaultServer;
     private final String vaultToken;
 
+    /**
+     *
+     * Creates a new instance of the vault class
+     *
+     * @param vaultServer the address of the vault server
+     * @param vaultToken the token to authenticate at the @vaultServer
+     */
     public Vault(@NotNull final String vaultServer,@NotNull final String vaultToken) {
         this.vaultServer = vaultServer;
         this.vaultToken = vaultToken;
