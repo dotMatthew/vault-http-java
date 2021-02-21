@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) {
         Vault vault = new Vault("https://vault.dotmatthew.dev:8200", "s.NyV3vKMWO57vyGDSkjyuqIkK");
-        vault.readPath("database/creds/temp_user");
+        vault.readPath("database/creds/test");
     }
 
 }

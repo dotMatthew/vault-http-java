@@ -1,11 +1,13 @@
 package dev.dotmatthew.vault;
 
 import dev.dotmatthew.vault.exceptions.VaultResponseCodeException;
+import dev.dotmatthew.vault.exceptions.VaultServerException;
 import dev.dotmatthew.vault.response.VaultResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -39,15 +41,24 @@ public class Vault {
 
         try (Response response = client.newCall(request).execute()) {
 
-            if(response.code() != 200) {
-                throw new VaultResponseCodeException("The response was not succesful (Code: " + response.code()+")!");
-            }
+            final String jsonResponse = Objects.requireNonNull(response.body()).string();
 
-            // final String jsonResponse = Objects.requireNonNull(response.body()).string();
+            if(response.code() != 200) {
+                final JSONArray array = new JSONObject(jsonResponse).getJSONArray("errors");
+                throw new VaultResponseCodeException(
+                        "The response was not succesful (Code: "
+                                + response.code()+")!" +
+                                "\n\tMessage: "
+                                + array.get(0).toString().trim()
+                                + "\n");
+            }
+            
+            System.out.println("Bis hier hin gehts!");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
 }
