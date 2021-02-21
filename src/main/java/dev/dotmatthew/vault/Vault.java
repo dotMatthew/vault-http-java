@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import dev.dotmatthew.vault.exceptions.VaultResponseCodeException;
 import dev.dotmatthew.vault.response.VaultResponse;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -22,6 +20,8 @@ import java.util.Objects;
  * @author Mathias Dollenbacher
  */
 public class Vault {
+
+    private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private final OkHttpClient client;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -65,6 +65,23 @@ public class Vault {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean write(@NotNull final String path, @NotNull Map<@NotNull String, @NotNull Object> data) {
+        final RequestBody body = RequestBody.create(JSON, this.gson.toJson(data));
+
+        final Request request = new Request.Builder()
+                .url(vaultServer+"/v1/"+path).
+                addHeader("X-Vault-Token", this.vaultToken)
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return response.code() == 200;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

@@ -4,6 +4,10 @@ import dev.dotmatthew.vault.Vault;
 import dev.dotmatthew.vault.response.VaultResponse;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 import static org.junit.Assert.*;
 
 /**
@@ -13,7 +17,7 @@ import static org.junit.Assert.*;
  *
  * @author Mathias Dollenbacher
  */
-public class GetTest {
+public class UnitTests {
 
     @Test
     public void GetTest() {
@@ -30,6 +34,18 @@ public class GetTest {
         System.out.println("Lease ID: " + response.getLeaseId());
         System.out.println("Is Renewable: " + response.isRenewable());
         response.getData().forEach((k, v) -> System.out.println("Data: Key:" + k + " // Value: " + v));
+
+    }
+
+    @Test
+    public void PostTest() {
+
+        final Vault vault = new Vault("***REMOVED***", "***REMOVED***");
+        final Map<String, Object> data = new HashMap<>();
+        data.put("foo", "bar");
+        final boolean response = vault.write("cubbyhole/test", data);
+
+        System.out.println(response);
 
     }
 
