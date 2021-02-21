@@ -1,16 +1,17 @@
 package dev.dotmatthew.vault;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import dev.dotmatthew.vault.exceptions.VaultResponseCodeException;
-import dev.dotmatthew.vault.exceptions.VaultServerException;
 import dev.dotmatthew.vault.response.VaultResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -23,6 +24,7 @@ import java.util.Objects;
 public class Vault {
 
     private final OkHttpClient client;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     private final String vaultServer;
     private final String vaultToken;
@@ -44,16 +46,20 @@ public class Vault {
             final String jsonResponse = Objects.requireNonNull(response.body()).string();
 
             if(response.code() != 200) {
-                final JSONArray array = new JSONObject(jsonResponse).getJSONArray("errors");
+
                 throw new VaultResponseCodeException(
                         "The response was not succesful (Code: "
-                                + response.code()+")!" +
-                                "\n\tMessage: "
-                                + array.get(0).toString().trim()
-                                + "\n");
+                                + response.code()+")");
             }
-            
-            System.out.println("Bis hier hin gehts!");
+
+            final JsonObject object = this.gson.fromJson(jsonResponse, JsonObject.class);
+
+            return new VaultResponse(
+                    object.get("lease_id").getAsString(),
+                    object.get("renewable").getAsBoolean(),
+                    object.get("lease_duration").getAsInt(),
+                    this.gson.fromJson(object.get("data"), Map.class)
+            );
 
         } catch (IOException e) {
             e.printStackTrace();

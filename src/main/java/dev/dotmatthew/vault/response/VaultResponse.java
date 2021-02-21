@@ -15,7 +15,6 @@ import java.util.Map;
 @AllArgsConstructor @Getter
 public class VaultResponse {
 
-    private final String requestId;
     private final String leaseId;
     private final boolean renewable;
     private final int leaseDuration;
