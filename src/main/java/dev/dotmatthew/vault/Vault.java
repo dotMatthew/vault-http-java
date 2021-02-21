@@ -9,6 +9,8 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -63,7 +65,7 @@ public class Vault {
             if(response.code() != 200) {
 
                 throw new VaultResponseCodeException(
-                        "The response was not succesful (Code: "
+                        "The response was not successful (Code: "
                                 + response.code()+")");
             }
 
@@ -123,6 +125,63 @@ public class Vault {
 
         try (final Response response = client.newCall(request).execute()) {
             return response.code() == 200;
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     *
+     * Revokes a lease immediately
+     *
+     * @param leaseID the id of the lease
+     * @return true if the lease was revoked or false if not
+     */
+    public boolean revoke(@NotNull final String leaseID) {
+        //TODO need to be tested asap (maybe not working yet!)
+        final RequestBody body = RequestBody.create(
+                JSON, this.gson.toJson(Collections.singletonMap("lease_id", leaseID)));
+
+        final Request request = new Request.Builder()
+                .url(vaultServer+"/v1/sys/leases/revoke/"+leaseID)
+                .header("X-Vault-Token", this.vaultToken)
+                .put(body)
+                .build();
+
+        try (final Response response = client.newCall(request).execute()) {
+            return response.code() == 200;
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     *
+     * Renews a leases
+     *
+     * @param leaseID the id of the leases
+     * @param incrementTime the time to add to the current ttl
+     * @return true if the leases was successfully renewed or false if not
+     */
+    public boolean renew(@NotNull final String leaseID, final int incrementTime) {
+        //TODO need to be tested asap (maybe not working yet!)
+        final Map<String, Object> data = new HashMap<>();
+
+        data.put("lease_id", leaseID);
+        data.put("increment", incrementTime);
+
+        final RequestBody body = RequestBody.create(JSON, this.gson.toJson(data));
+
+        final Request request = new Request.Builder()
+                .url(vaultServer+"/v1/sys/leases/renew/"+leaseID)
+                .header("X-Vault-Token", this.vaultToken)
+                .put(body)
+                .build();
+
+        try (final Response response = client.newCall(request).execute()) {
+            return response.code() != 200;
         } catch (final IOException e) {
             e.printStackTrace();
         }
