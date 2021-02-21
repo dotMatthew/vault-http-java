@@ -1,9 +1,7 @@
 package dev.dotmatthew.vault.response;
 
-import dev.dotmatthew.vault.Vault;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Map;
 
