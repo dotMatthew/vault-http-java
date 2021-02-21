@@ -35,6 +35,14 @@ public class Vault {
         this.client = new OkHttpClient();
     }
 
+    /**
+     *
+     * Read value from the vault
+     *
+     * @param path the path where the secret is stored
+     * @return a response object filled with data
+     * @throws VaultResponseCodeException if API returns anything except 200
+     */
     public VaultResponse readPath(@NotNull String path) {
         final Request request = new Request.Builder()
                 .url(vaultServer+"/v1/"+path)
@@ -61,12 +69,20 @@ public class Vault {
                     this.gson.fromJson(object.get("data"), Map.class)
             );
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    /**
+     *
+     * Write key/value secret to the vault
+     *
+     * @param path the path to the secret
+     * @param data the pair of data (k/v) to write to the secret
+     * @return true if written successfully or false if not
+     */
     public boolean write(@NotNull final String path, @NotNull Map<@NotNull String, @NotNull Object> data) {
         final RequestBody body = RequestBody.create(JSON, this.gson.toJson(data));
 
@@ -76,9 +92,31 @@ public class Vault {
                 .post(body)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try (final Response response = client.newCall(request).execute()) {
             return response.code() == 200;
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     *
+     * Delete a complete path from the vault
+     *
+     * @param path the path to the secret
+     * @return true if the path was deleted successfully or false if not
+     */
+    public boolean delete(@NotNull final String path) {
+        final Request request = new Request.Builder()
+                .url(vaultServer+"/v1/"+path)
+                .addHeader("X-Vault-Token", this.vaultToken)
+                .delete()
+                .build();
+
+        try (final Response response = client.newCall(request).execute()) {
+            return response.code() == 200;
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         return false;
