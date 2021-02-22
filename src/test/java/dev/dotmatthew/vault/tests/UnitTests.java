@@ -48,4 +48,31 @@ public class UnitTests {
 
     }
 
+    @Test
+    public void deleteTest() {
+
+        final Vault vault = new Vault("***REMOVED***", "***REMOVED***");
+
+        final Map<String, Object> data = new HashMap<>();
+
+        data.put("foo", "bar");
+        data.put("bar", "foo");
+
+        final boolean response = vault.write("cubbyhole/test", data);
+
+        System.out.println(response);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        final boolean deleteResponse = vault.delete("cubbyhole/test");
+
+        System.out.println(deleteResponse);
+        assertTrue(deleteResponse);
+
+    }
+
 }

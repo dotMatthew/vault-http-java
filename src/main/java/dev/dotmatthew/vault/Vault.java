@@ -31,6 +31,8 @@ public class Vault {
     private final String vaultServer;
     private final String vaultToken;
 
+    private final String VAULT_API_VERSION;
+
     /**
      *
      * Creates a new instance of the vault class
@@ -42,6 +44,27 @@ public class Vault {
         this.vaultServer = vaultServer;
         this.vaultToken = vaultToken;
         this.client = new OkHttpClient();
+        this.VAULT_API_VERSION = "v1";
+    }
+
+    /**
+     *
+     * Creates a new instance of the vault class
+     *
+     * @param vaultServer the address of the vault server
+     * @param vaultToken the token to authenticate at the @vaultServer
+     * @param vaultApiVersion the version of the api who is used by the vault server (default v1)
+     */
+    public Vault(@NotNull final String vaultServer, @NotNull final String vaultToken, @NotNull final String vaultApiVersion) {
+        this.vaultServer = vaultServer;
+        this.vaultToken = vaultToken;
+        this.client = new OkHttpClient();
+        if(!(vaultApiVersion.equalsIgnoreCase("v1") || vaultApiVersion.equalsIgnoreCase("v2"))) {
+            this.VAULT_API_VERSION = "v1";
+        } else {
+            this.VAULT_API_VERSION = vaultApiVersion;
+        }
+
     }
 
     /**
@@ -124,7 +147,7 @@ public class Vault {
                 .build();
 
         try (final Response response = client.newCall(request).execute()) {
-            return response.code() == 200;
+            return response.code() == 204 || response.code() == 200;
         } catch (final IOException e) {
             e.printStackTrace();
         }
