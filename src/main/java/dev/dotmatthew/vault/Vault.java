@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import dev.dotmatthew.vault.exceptions.VaultResponseCodeException;
 import dev.dotmatthew.vault.response.VaultResponse;
+import dev.dotmatthew.vault.utils.HttpClient;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,18 +54,50 @@ public class Vault {
      *
      * @param vaultServer the address of the vault server
      * @param vaultToken the token to authenticate at the @vaultServer
+     * @param ignoreSSLErrors disables ssl errors (e. g. self-signed certs)
+     */
+    public Vault(@NotNull final String vaultServer,@NotNull final String vaultToken, final boolean ignoreSSLErrors) {
+        this.vaultServer = vaultServer;
+        this.vaultToken = vaultToken;
+        if(ignoreSSLErrors) this.client = HttpClient.trustAllSslClient(new OkHttpClient());
+        else this.client = new OkHttpClient();
+        this.VAULT_API_VERSION = "v1";
+    }
+
+    /**
+     *
+     * Creates a new instance of the vault class
+     *
+     * @param vaultServer the address of the vault server
+     * @param vaultToken the token to authenticate at the @vaultServer
      * @param vaultApiVersion the version of the api who is used by the vault server (default v1)
      */
     public Vault(@NotNull final String vaultServer, @NotNull final String vaultToken, @NotNull final String vaultApiVersion) {
         this.vaultServer = vaultServer;
         this.vaultToken = vaultToken;
         this.client = new OkHttpClient();
-        if(!(vaultApiVersion.equalsIgnoreCase("v1") || vaultApiVersion.equalsIgnoreCase("v2"))) {
-            this.VAULT_API_VERSION = "v1";
-        } else {
-            this.VAULT_API_VERSION = vaultApiVersion;
-        }
+        if(!(vaultApiVersion.equalsIgnoreCase("v1") ||
+        vaultApiVersion.equalsIgnoreCase("v2"))) this.VAULT_API_VERSION = "v1";
+        else this.VAULT_API_VERSION = vaultApiVersion;
+    }
 
+    /**
+     *
+     * Creates a new instance of the vault class
+     *
+     * @param vaultServer the address of the vault server
+     * @param vaultToken the token to authenticate at the @vaultServer
+     * @param vaultApiVersion the version of the api who is used by the vault server (default v1)
+     * @param ignoreSSLErrors disables ssl errors (e. g. self-signed certs)
+     */
+    public Vault(@NotNull final String vaultServer, @NotNull final String vaultToken, @NotNull final String vaultApiVersion, final boolean ignoreSSLErrors) {
+        this.vaultServer = vaultServer;
+        this.vaultToken = vaultToken;
+        if(ignoreSSLErrors) this.client = HttpClient.trustAllSslClient(new OkHttpClient());
+        else this.client = new OkHttpClient();
+        if(!(vaultApiVersion.equalsIgnoreCase("v1") ||
+                vaultApiVersion.equalsIgnoreCase("v2"))) this.VAULT_API_VERSION = "v1";
+        else this.VAULT_API_VERSION = vaultApiVersion;
     }
 
     /**
@@ -125,7 +158,7 @@ public class Vault {
                 .build();
 
         try (final Response response = client.newCall(request).execute()) {
-            return response.code() == 200;
+            return response.code() == 204;
         } catch (final IOException e) {
             e.printStackTrace();
         }
