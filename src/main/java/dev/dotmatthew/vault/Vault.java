@@ -77,7 +77,7 @@ public class Vault {
      */
     public VaultResponse readPath(@NotNull String path) {
         final Request request = new Request.Builder()
-                .url(vaultServer+"/v1/"+path)
+                .url(vaultServer+"/"+VAULT_API_VERSION+"/"+path)
                 .addHeader("X-Vault-Token", this.vaultToken)
                 .build();
 
@@ -119,7 +119,7 @@ public class Vault {
         final RequestBody body = RequestBody.create(JSON, this.gson.toJson(data));
 
         final Request request = new Request.Builder()
-                .url(vaultServer+"/v1/"+path).
+                .url(vaultServer+"/"+VAULT_API_VERSION+"/"+path).
                 addHeader("X-Vault-Token", this.vaultToken)
                 .post(body)
                 .build();
@@ -141,7 +141,7 @@ public class Vault {
      */
     public boolean delete(@NotNull final String path) {
         final Request request = new Request.Builder()
-                .url(vaultServer+"/v1/"+path)
+                .url(vaultServer+"/"+VAULT_API_VERSION+"/"+path)
                 .addHeader("X-Vault-Token", this.vaultToken)
                 .delete()
                 .build();
@@ -167,7 +167,7 @@ public class Vault {
                 JSON, this.gson.toJson(Collections.singletonMap("lease_id", leaseID)));
 
         final Request request = new Request.Builder()
-                .url(vaultServer+"/v1/sys/leases/revoke/"+leaseID)
+                .url(vaultServer+"/"+VAULT_API_VERSION+"/"+"sys/leases/revoke/"+leaseID)
                 .header("X-Vault-Token", this.vaultToken)
                 .put(body)
                 .build();
@@ -198,7 +198,7 @@ public class Vault {
         final RequestBody body = RequestBody.create(JSON, this.gson.toJson(data));
 
         final Request request = new Request.Builder()
-                .url(vaultServer+"/v1/sys/leases/renew/"+leaseID)
+                .url(vaultServer+"/"+VAULT_API_VERSION+"/"+"sys/leases/renew/"+leaseID)
                 .header("X-Vault-Token", this.vaultToken)
                 .put(body)
                 .build();
